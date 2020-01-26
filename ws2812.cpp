@@ -98,12 +98,13 @@ WS2812B::WS2812B(void) {};
 
 void WS2812B::begin(void)
 {
+	HardwareTimer *myTim = new HardwareTimer(TIMx);
 	fillBufferBlack();
 
 	_TimHandle.Instance = TIMx;
 
 	_TimHandle.Init.Period = TIMER_PERIOD - 1;
-	_TimHandle.Init.Prescaler = (uint32_t)((getTimerClkFreq(TIMx) / TIMER_CLOCK_FREQ) - 1);
+	_TimHandle.Init.Prescaler = (uint32_t)((myTim->getTimerClkFreq() / TIMER_CLOCK_FREQ) - 1);
 	_TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	_TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
 	//_TimHandle.MSPInit_Callback = HAL_TIM_WS2812_MspInit;		// Crée une initialisation low level de ce timer
