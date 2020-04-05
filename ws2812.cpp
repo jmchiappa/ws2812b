@@ -13,8 +13,9 @@ static pixel_t Layer[LAYER_MAX][MATRIX_NB_ROW][MATRIX_NB_COLUMN];
 static uint8_t Brightness[LAYER_MAX];
 static uint32_t last_date_call=0U;
 
+#define WS_RGB
 //#define WS_BGR
-#define WS_GRB
+//#define WS_GRB
 #define INDEX_LED(x,y)		(x+(y*MATRIX_NB_COLUMN))
 #define COLOR(r,g,b)		(r<<16 | g<<8 | b)
 
@@ -231,6 +232,13 @@ void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_
 			tempBuffer[8 + i] = ((GREEN << i) & 0x80) ? WS2812_1 : WS2812_0;
 		for (i = 0; i < 8; i++) // BLUE
 			tempBuffer[16 + i] = ((RED << i) & 0x80) ? WS2812_1 : WS2812_0;
+	#elif defined(WS_RGB)
+		for (i = 0; i < 8; i++) // RED data
+			tempBuffer[i] = ((RED << i) & 0x80) ? WS2812_1 : WS2812_0;
+		for (i = 0; i < 8; i++) // GREEN
+			tempBuffer[8 + i] = ((GREEN << i) & 0x80) ? WS2812_1 : WS2812_0;
+		for (i = 0; i < 8; i++) // BLUE
+			tempBuffer[16 + i] = ((BLUE << i) & 0x80) ? WS2812_1 : WS2812_0;
 	#endif
 
 		for (i = 0; i < 24; i++)
