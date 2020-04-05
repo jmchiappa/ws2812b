@@ -35,7 +35,7 @@ class WS2812B
 		void Fill(uint8_t nb_layer,uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
 		void Bitmap(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t *bitmap);
 		void SetPixelAt(uint8_t nb_layer,int8_t x, int8_t y, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
-		void SetPixelAt(uint8_t nb_layer,int8_t nb_led, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
+		void SetPixelAt(uint8_t nb_layer,uint8_t nb_led, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
 		void fillBackground(uint8_t red, uint8_t green, uint8_t blue);
 		void SetBrightness(uint8_t nb_layer,uint8_t brightness);
 		static void setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_t BLUE);

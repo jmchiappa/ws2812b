@@ -36,7 +36,7 @@
 #define TIMER_PERIOD						(TIMER_CLOCK_FREQ / WS2812_FREQ)
 #define LED_NUMBER							(MATRIX_NB_ROW*MATRIX_NB_COLUMN)					// how many LEDs the MCU should control?
 #define LED_DATA_SIZE						(LED_NUMBER * 24)
-#define RESET_SLOTS_BEGIN					(50)
+#define RESET_SLOTS_BEGIN					(200)
 #define RESET_SLOTS_END						(200)
 #define WS2812_LAST_SLOT					(1)
 #define LED_BUFFER_SIZE						(RESET_SLOTS_BEGIN + LED_DATA_SIZE + WS2812_LAST_SLOT + RESET_SLOTS_END)

@@ -204,6 +204,12 @@ void WS2812B::SetPixelAt(uint8_t nb_layer,int8_t x, int8_t y, uint8_t alpha,uint
 		}
 	}
 }
+
+void WS2812B::SetPixelAt(uint8_t nb_layer,uint8_t nbled, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue)
+{
+	setLEDcolor(nbled,red,green,blue);
+}
+
 void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_t BLUE) {
 	uint8_t tempBuffer[24];
 	uint32_t i;
