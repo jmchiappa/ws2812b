@@ -37,7 +37,7 @@
 #define LED_NUMBER							(MATRIX_NB_ROW*MATRIX_NB_COLUMN)					// how many LEDs the MCU should control?
 #define LED_DATA_SIZE						(LED_NUMBER * 24)
 #define RESET_SLOTS_BEGIN					(50)
-#define RESET_SLOTS_END						(50)
+#define RESET_SLOTS_END						(200)
 #define WS2812_LAST_SLOT					(1)
 #define LED_BUFFER_SIZE						(RESET_SLOTS_BEGIN + LED_DATA_SIZE + WS2812_LAST_SLOT + RESET_SLOTS_END)
 #define WS2812_0							(TIMER_PERIOD / 3)				// WS2812's zero high time is long about one third of the period
