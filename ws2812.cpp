@@ -13,7 +13,7 @@ static pixel_t Layer[LAYER_MAX][MATRIX_NB_ROW][MATRIX_NB_COLUMN];
 static uint8_t Brightness[LAYER_MAX];
 static uint32_t last_date_call=0U;
 
-#define WS_RGB
+//#define WS_RGB
 //#define WS_BGR
 //#define WS_GRB
 #define INDEX_LED(x,y)		(x+(y*MATRIX_NB_COLUMN))
@@ -95,7 +95,7 @@ void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
 
 /* Constructeur Initialise le screen */
 
-WS2812B::WS2812B(void) {};
+WS2812B::WS2812B(rgb_order_e ws_order) : _order(ws_order) {};
 
 void WS2812B::begin(void)
 {
@@ -215,31 +215,36 @@ void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_
 	uint8_t tempBuffer[24];
 	uint32_t i;
 	uint32_t LEDindex;
+	uint8_t color1;
+	uint8_t color2;
+	uint8_t color3;
+
 	if(LEDnumber<LED_NUMBER)
 	{
 		LEDindex = LEDnumber % LED_NUMBER;
-	#ifdef WS_GRB
+		switch(_order)
+		{
+			case WS_GRB:
+				color1 = GREEN;
+				color2 = RED;
+				color3 = BLUE;
+				break;
+			case WS_RGB:
+				color1 = RED;
+				color2 = GREEN;
+				color3 = BLUE;
+				break;
+			default:
+				color1 = BLUE;
+				color2 = GREEN;
+				color3 = RED;
+		}
 		for (i = 0; i < 8; i++) // GREEN data
-			tempBuffer[i] = ((GREEN << i) & 0x80) ? WS2812_1 : WS2812_0;
+			tempBuffer[i] = ((color1 << i) & 0x80) ? WS2812_1 : WS2812_0;
 		for (i = 0; i < 8; i++) // RED
-			tempBuffer[8 + i] = ((RED << i) & 0x80) ? WS2812_1 : WS2812_0;
+			tempBuffer[8 + i] = ((color2 << i) & 0x80) ? WS2812_1 : WS2812_0;
 		for (i = 0; i < 8; i++) // BLUE
-			tempBuffer[16 + i] = ((BLUE << i) & 0x80) ? WS2812_1 : WS2812_0;
-	#elif defined(WS_BGR)
-		for (i = 0; i < 8; i++) // RED data
-			tempBuffer[i] = ((BLUE << i) & 0x80) ? WS2812_1 : WS2812_0;
-		for (i = 0; i < 8; i++) // GREEN
-			tempBuffer[8 + i] = ((GREEN << i) & 0x80) ? WS2812_1 : WS2812_0;
-		for (i = 0; i < 8; i++) // BLUE
-			tempBuffer[16 + i] = ((RED << i) & 0x80) ? WS2812_1 : WS2812_0;
-	#elif defined(WS_RGB)
-		for (i = 0; i < 8; i++) // RED data
-			tempBuffer[i] = ((RED << i) & 0x80) ? WS2812_1 : WS2812_0;
-		for (i = 0; i < 8; i++) // GREEN
-			tempBuffer[8 + i] = ((GREEN << i) & 0x80) ? WS2812_1 : WS2812_0;
-		for (i = 0; i < 8; i++) // BLUE
-			tempBuffer[16 + i] = ((BLUE << i) & 0x80) ? WS2812_1 : WS2812_0;
-	#endif
+			tempBuffer[16 + i] = ((color3 << i) & 0x80) ? WS2812_1 : WS2812_0;
 
 		for (i = 0; i < 24; i++)
 			LEDbuffer[RESET_SLOTS_BEGIN + LEDindex * 24 + i] = tempBuffer[i];

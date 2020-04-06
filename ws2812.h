@@ -19,6 +19,11 @@ typedef struct {
   uint8_t blue;
 } pixel_t;
 
+typedef enum {
+	WS_GRB=0,
+	WS_BGR,
+	WS_RGB
+}rgb_order_e;
 
 void TIMx_DMA_IRQHandler(void);
 void ws2812_update(void);
@@ -27,7 +32,7 @@ void ws2812_update(void);
 class WS2812B
 {
 	public:
-		WS2812B(void);      // constructor
+		WS2812B(rgb_order_e ws_order=WS_GRB);      // constructor
 		void begin(void);
 		void Clear(void);        // fill the screen with black color
 		void Clear(uint8_t nb_layer);
@@ -38,12 +43,12 @@ class WS2812B
 		void SetPixelAt(uint8_t nb_layer,uint8_t nb_led, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
 		void fillBackground(uint8_t red, uint8_t green, uint8_t blue);
 		void SetBrightness(uint8_t nb_layer,uint8_t brightness);
-		static void setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_t BLUE);
+		void setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_t BLUE);
 		// static void updateCallback(void);
 	private:
 
 		/* 	-1 : non sauvegardé					*/
-		/*	>0 : couleur RGB 1 byte/compsante 	*/
+		/*	>0 : couleur RGB 1 byte/composante 	*/
 		// static int32_t BackUpBuffer[LED_NUMBER];
 		// static int32_t ScreenBuffer[LED_NUMBER];
 
@@ -56,9 +61,9 @@ class WS2812B
 		void fillBufferBlack(void);
 		void fillBufferWhite(void);
 		bool Check_Zone(int8_t x,int8_t y);
-		static void Make_Layer_composite(void);
-		static void Make_Pixel_Composite(int8_t x, int8_t y);
-
+		void Make_Layer_composite(void);
+		void Make_Pixel_Composite(int8_t x, int8_t y);
+		rgb_order_e _order;
 };
 
 #ifdef __cplusplus
