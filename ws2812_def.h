@@ -40,6 +40,7 @@
 #define RESET_SLOTS_END					(200)
 #define WS2812_LAST_SLOT				(1)
 #define BUF_SIZE(x)							(RESET_SLOTS_BEGIN + x + WS2812_LAST_SLOT + RESET_SLOTS_END)
+#define CALC_NBLED(x)						(uint16_t)((x - RESET_SLOTS_BEGIN - WS2812_LAST_SLOT - RESET_SLOTS_END)/24)
 #define LED_BUFFER_SIZE					BUF_SIZE(LED_DATA_SIZE)
 #define WS2812_0								(TIMER_PERIOD / 3)				// WS2812's zero high time is long about one third of the period
 #define WS2812_1								(TIMER_PERIOD * 2 / 3)		// WS2812's one high time is long about two thirds of the period

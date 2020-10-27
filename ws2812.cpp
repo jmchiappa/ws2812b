@@ -12,7 +12,7 @@ static uint8_t LEDbuffer[LED_BUFFER_SIZE];
 
 static uint8_t *MyTempbuffer;
 static uint32_t MyTempbufsize;
-
+static uint16_t NbLed;
 static pixel_t Layer[LAYER_MAX][MATRIX_NB_ROW][MATRIX_NB_COLUMN];
 static uint8_t Brightness[LAYER_MAX];
 static uint32_t last_date_call=0U;
@@ -102,6 +102,7 @@ void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
 WS2812B::WS2812B(rgb_order_e ws_order) : _order(ws_order) {
 	MyTempbuffer = LEDbuffer;
 	MyTempbufsize = LED_BUFFER_SIZE;
+	NbLed = LED_NUMBER;
 };
 
 WS2812B::WS2812B(uint8_t *buf , uint32_t size) {
@@ -112,7 +113,9 @@ WS2812B::WS2812B(uint8_t *buf , uint32_t size , rgb_order_e ws_order) {
 	if(buf!=NULL) {
 		MyTempbuffer  = buf;
 		MyTempbufsize = size;
+		NbLed = CALC_NBLED(size);
 	}else{
+		NbLed = LED_NUMBER; 
 		MyTempbuffer  = LEDbuffer;
 		MyTempbufsize = LED_BUFFER_SIZE;
 	}
@@ -151,7 +154,7 @@ void WS2812B::begin(void)
 			MyTempbufsize);
 	memset(Layer,0, sizeof(Layer));
 	memset(Brightness,FULL_BRIGHTNESS_RANGE,sizeof(Brightness));
-
+	// Serial.println(NbLed);
 }
 
 void WS2812B::Clear(void)
@@ -241,9 +244,9 @@ void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_
 	uint8_t color2;
 	uint8_t color3;
 
-	if(LEDnumber<LED_NUMBER)
+	if(LEDnumber<NbLed)
 	{
-		LEDindex = LEDnumber % LED_NUMBER;
+		LEDindex = LEDnumber % NbLed;
 		switch(_order)
 		{
 			case WS_GRB:
@@ -277,7 +280,7 @@ void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_
 void WS2812B::setWHOLEcolor(uint8_t RED, uint8_t GREEN, uint8_t BLUE) {
 	uint32_t index;
 
-	for (index = 0; index < LED_NUMBER; index++)
+	for (index = 0; index < NbLed; index++)
 		setLEDcolor(index, RED, GREEN, BLUE);
 }
 
