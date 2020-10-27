@@ -9,6 +9,10 @@ DMA_HandleTypeDef hdma_tim;
 TIM_HandleTypeDef _TimHandle;
 TIM_OC_InitTypeDef _sConfig;
 static uint8_t LEDbuffer[LED_BUFFER_SIZE];
+
+static uint8_t *MyTempbuffer;
+static uint32_t MyTempbufsize;
+
 static pixel_t Layer[LAYER_MAX][MATRIX_NB_ROW][MATRIX_NB_COLUMN];
 static uint8_t Brightness[LAYER_MAX];
 static uint32_t last_date_call=0U;
@@ -95,7 +99,25 @@ void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
 
 /* Constructeur Initialise le screen */
 
-WS2812B::WS2812B(rgb_order_e ws_order) : _order(ws_order) {};
+WS2812B::WS2812B(rgb_order_e ws_order) : _order(ws_order) {
+	MyTempbuffer = LEDbuffer;
+	MyTempbufsize = LED_BUFFER_SIZE;
+};
+
+WS2812B::WS2812B(uint8_t *buf , uint32_t size) {
+	WS2812B(buf,size,WS_GRB);
+};
+
+WS2812B::WS2812B(uint8_t *buf , uint32_t size , rgb_order_e ws_order) {
+	if(buf!=NULL) {
+		MyTempbuffer  = buf;
+		MyTempbufsize = size;
+	}else{
+		MyTempbuffer  = LEDbuffer;
+		MyTempbufsize = LED_BUFFER_SIZE;
+	}
+	_order = ws_order;
+};
 
 void WS2812B::begin(void)
 {
@@ -125,8 +147,8 @@ void WS2812B::begin(void)
 
 	/*##-3- Start PWM signal generation in DMA mode ############################*/
 
-	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) LEDbuffer,
-			LED_BUFFER_SIZE);
+	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
+			MyTempbufsize);
 	memset(Layer,0, sizeof(Layer));
 	memset(Brightness,FULL_BRIGHTNESS_RANGE,sizeof(Brightness));
 
@@ -247,7 +269,7 @@ void WS2812B::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_
 			tempBuffer[16 + i] = ((color3 << i) & 0x80) ? WS2812_1 : WS2812_0;
 
 		for (i = 0; i < 24; i++)
-			LEDbuffer[RESET_SLOTS_BEGIN + LEDindex * 24 + i] = tempBuffer[i];
+			*(MyTempbuffer+RESET_SLOTS_BEGIN + LEDindex * 24 + i) = tempBuffer[i];
 	}
 }
 
@@ -270,17 +292,17 @@ void WS2812B::fillBufferBlack(void) {
 	buffIndex = 0;
 
 	for (index = 0; index < RESET_SLOTS_BEGIN; index++) {
-		LEDbuffer[buffIndex] = WS2812_RESET;
+		*(MyTempbuffer+buffIndex) = WS2812_RESET;
 		buffIndex++;
 	}
 	for (index = 0; index < LED_DATA_SIZE; index++) {
-		LEDbuffer[buffIndex] = WS2812_0;
+		*(MyTempbuffer+buffIndex) = WS2812_0;
 		buffIndex++;
 	}
-	LEDbuffer[buffIndex] = WS2812_0;
+	*(MyTempbuffer+buffIndex) = WS2812_0;
 	buffIndex++;
 	for (index = 0; index < RESET_SLOTS_END; index++) {
-		LEDbuffer[buffIndex] = 0;
+		*(MyTempbuffer+buffIndex) = 0;
 		buffIndex++;
 	}
 }
@@ -291,17 +313,17 @@ void WS2812B::fillBufferWhite(void) {
 	buffIndex = 0;
 
 	for (index = 0; index < RESET_SLOTS_BEGIN; index++) {
-		LEDbuffer[buffIndex] = WS2812_RESET;
+		*(MyTempbuffer+buffIndex) = WS2812_RESET;
 		buffIndex++;
 	}
 	for (index = 0; index < LED_DATA_SIZE; index++) {
-		LEDbuffer[buffIndex] = WS2812_1;
+		*(MyTempbuffer+buffIndex) = WS2812_1;
 		buffIndex++;
 	}
-	LEDbuffer[buffIndex] = WS2812_0;
+	*(MyTempbuffer+buffIndex) = WS2812_0;
 	buffIndex++;
 	for (index = 0; index < RESET_SLOTS_END; index++) {
-		LEDbuffer[buffIndex] = 0;
+		*(MyTempbuffer+buffIndex) = 0;
 		buffIndex++;
 	}
 }
@@ -346,6 +368,6 @@ void TIMx_DMA_IRQHandler(void) {
 
 void ws2812_update(void) {
 	//HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) LEDbuffer,
-			LED_BUFFER_SIZE);
+	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
+			MyTempbufsize);
 }

@@ -32,7 +32,10 @@ void ws2812_update(void);
 class WS2812B
 {
 	public:
+		//WS2812B(rgb_order_e ws_order=WS_GRB);      // constructor
 		WS2812B(rgb_order_e ws_order=WS_GRB);      // constructor
+		WS2812B(uint8_t *buf , uint32_t size);      // constructor
+		WS2812B(uint8_t *buf , uint32_t size, rgb_order_e ws_order);      // constructor
 		void begin(void);
 		void Clear(void);        // fill the screen with black color
 		void Clear(uint8_t nb_layer);
