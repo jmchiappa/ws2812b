@@ -48,6 +48,7 @@ class WS2812B
 		void SetBrightness(uint8_t nb_layer,uint8_t brightness);
 		void setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8_t BLUE);
 		// static void updateCallback(void);
+		void fillBufferBlack(void);
 	private:
 
 		/* 	-1 : non sauvegardé					*/
@@ -61,7 +62,6 @@ class WS2812B
 		 */
 
 		void setWHOLEcolor(uint8_t RED, uint8_t GREEN, uint8_t BLUE);
-		void fillBufferBlack(void);
 		void fillBufferWhite(void);
 		bool Check_Zone(int8_t x,int8_t y);
 		void Make_Layer_composite(void);

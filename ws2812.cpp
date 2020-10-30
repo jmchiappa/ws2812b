@@ -298,7 +298,7 @@ void WS2812B::fillBufferBlack(void) {
 		*(MyTempbuffer+buffIndex) = WS2812_RESET;
 		buffIndex++;
 	}
-	for (index = 0; index < LED_DATA_SIZE; index++) {
+	for (index = 0; index < LED_DATA_SIZE(NbLed); index++) {
 		*(MyTempbuffer+buffIndex) = WS2812_0;
 		buffIndex++;
 	}
@@ -319,7 +319,7 @@ void WS2812B::fillBufferWhite(void) {
 		*(MyTempbuffer+buffIndex) = WS2812_RESET;
 		buffIndex++;
 	}
-	for (index = 0; index < LED_DATA_SIZE; index++) {
+	for (index = 0; index < LED_DATA_SIZE(NbLed); index++) {
 		*(MyTempbuffer+buffIndex) = WS2812_1;
 		buffIndex++;
 	}
