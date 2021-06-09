@@ -37,6 +37,7 @@ class WS2812B
 		WS2812B(uint8_t *buf , uint32_t size);      // constructor
 		WS2812B(uint8_t *buf , uint32_t size, rgb_order_e ws_order);      // constructor
 		void begin(void);
+		void _init(void);				 // underhood intialization for each supported target
 		void Clear(void);        // fill the screen with black color
 		void Clear(uint8_t nb_layer);
 		void Rectangle(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);

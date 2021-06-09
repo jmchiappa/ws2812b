@@ -4,6 +4,7 @@
 #include "timer.h"
 /* Variables -----------------------------------------------*/
 
+
 GPIO_InitTypeDef GPIO_InitStruct;
 DMA_HandleTypeDef hdma_tim;
 TIM_HandleTypeDef _TimHandle;
@@ -43,58 +44,7 @@ static uint32_t last_date_call=0U;
 // }
 
 
-/**
- * @brief TIM MSP Initialization
- *        This function configures the hardware resources used in this example:
- *           - Peripheral's clock enable
- *           - Peripheral's GPIO Configuration
- *           - DMA configuration for transmission request by peripheral
- * @param htim: TIM handle pointer
- * @retval None
- */
-void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
-	/*##-1- Enable peripherals and GPIO Clocks #################################*/
-	/* TIMx clock enable */
-	TIMx_CLK_ENABLE();
 
-	/* Enable GPIO Channel Clock */
-	TIMx_CHANNEL1_GPIO_CLK_ENABLE();
-
-	/* Enable DMA clock */
-	DMAx_CLK_ENABLE();
-
-	/* Configure TIM1_Channel1 in output, push-pull & alternate function mode */
-	GPIO_InitStruct.Pin = GPIO_PIN_CHANNEL1;
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF_TIMx;
-	HAL_GPIO_Init(TIMx_GPIO_CHANNEL1_PORT, &GPIO_InitStruct);
-
-	/* Set the parameters to be configured */
-	hdma_tim.Init.Request = TIMx_CC1_DMA_REQUEST;
-	hdma_tim.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma_tim.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_tim.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_tim.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-	hdma_tim.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	hdma_tim.Init.Mode = DMA_CIRCULAR;
-	hdma_tim.Init.Priority = DMA_PRIORITY_HIGH;
-
-	/* Set hdma_tim instance */
-	hdma_tim.Instance = TIMx_CC1_DMA_INST;
-
-	/* Link hdma_tim to hdma[TIM_DMA_ID_CC1] (channel1) */
-	__HAL_LINKDMA(htim, hdma[TIM_DMA_ID_CC1], hdma_tim);
-
-	/* Initialize TIMx DMA handle */
-	HAL_DMA_Init(htim->hdma[TIM_DMA_ID_CC1]);
-
-	/*##-2- Configure the NVIC for DMA #########################################*/
-	/* NVIC configuration for DMA transfer complete interrupt */
-	HAL_NVIC_SetPriority(TIMx_DMA_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(TIMx_DMA_IRQn);
-}
 
 
 /* Constructeur Initialise le screen */
@@ -124,34 +74,10 @@ WS2812B::WS2812B(uint8_t *buf , uint32_t size , rgb_order_e ws_order) {
 
 void WS2812B::begin(void)
 {
-	HardwareTimer *myTim = new HardwareTimer(TIMx);
 	fillBufferBlack();
+	
+	this->_init();
 
-	_TimHandle.Instance = TIMx;
-
-	_TimHandle.Init.Period = TIMER_PERIOD - 1;
-	_TimHandle.Init.Prescaler = (uint32_t)((myTim->getTimerClkFreq() / TIMER_CLOCK_FREQ) - 1);
-	_TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	_TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
-	//_TimHandle.MSPInit_Callback = HAL_TIM_WS2812_MspInit;		// Crée une initialisation low level de ce timer
-	HAL_TIM_PWM_Init(&_TimHandle);
-	HAL_TIM_WS2812_MspInit(&_TimHandle);
-
-	/*##-2- Configure the PWM channel 3 ########################################*/
-
-	_sConfig.OCMode = TIM_OCMODE_PWM1;
-	_sConfig.OCPolarity = TIM_OCPOLARITY_HIGH;
-	_sConfig.OCFastMode = TIM_OCFAST_DISABLE;
-	_sConfig.OCIdleState = TIM_OCIDLESTATE_RESET;
-	_sConfig.Pulse        = 0;
-	HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
-
-	// registerCoreCallback(WS2812B::updateCallback);
-
-	/*##-3- Start PWM signal generation in DMA mode ############################*/
-
-	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
-			MyTempbufsize);
 	memset(Layer,0, sizeof(Layer));
 	memset(Brightness,FULL_BRIGHTNESS_RANGE,sizeof(Brightness));
 	// Serial.println(NbLed);
@@ -374,3 +300,11 @@ void ws2812_update(void) {
 	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
 			MyTempbufsize);
 }
+
+#if defined(STM32L476xx)
+# include "l476.init"
+#elif defined(STM32WB55xx)
+# include "wb55.init"
+#else
+# error "from library ws2812 : MCU not supported"
+#endif
