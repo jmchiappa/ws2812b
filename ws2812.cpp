@@ -291,9 +291,6 @@ void WS2812B::Make_Pixel_Composite(int8_t x, int8_t y)
 
 
 
-void TIMx_DMA_IRQHandler(void) {
-	HAL_DMA_IRQHandler(_TimHandle.hdma[TIM_DMA_ID_CC1]);
-}
 
 void ws2812_update(void) {
 	//HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
