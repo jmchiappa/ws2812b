@@ -5,10 +5,6 @@
 /* Variables -----------------------------------------------*/
 
 
-GPIO_InitTypeDef GPIO_InitStruct;
-DMA_HandleTypeDef hdma_tim;
-TIM_HandleTypeDef _TimHandle;
-TIM_OC_InitTypeDef _sConfig;
 static uint8_t LEDbuffer[LED_BUFFER_SIZE];
 
 static uint8_t *MyTempbuffer;
