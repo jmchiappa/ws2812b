@@ -1,5 +1,7 @@
-TIM_HandleTypeDef htim16;
-DMA_HandleTypeDef hdma_tim16_ch1;
+GPIO_InitTypeDef GPIO_InitStruct;
+DMA_HandleTypeDef hdma_tim;
+TIM_HandleTypeDef _TimHandle;
+TIM_OC_InitTypeDef _sConfig;
 
 
 
@@ -14,69 +16,6 @@ DMA_HandleTypeDef hdma_tim16_ch1;
   delay(1000);\
   }\
 }
-
-// void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
-// {
-//   if(htim_base->Instance==TIM16)
-//   {
-//   /* USER CODE BEGIN TIM16_MspInit 0 */
-
-//   /* USER CODE END TIM16_MspInit 0 */
-//     /* Peripheral clock enable */
-//     __HAL_RCC_TIM16_CLK_ENABLE();
-
-//     /* TIM16 DMA Init */
-//     /* TIM16_CH1 Init */
-//     hdma_tim16_ch1.Instance = DMA1_Channel2;
-//     hdma_tim16_ch1.Init.Request = DMA_REQUEST_TIM16_CH1;
-//     hdma_tim16_ch1.Init.Direction = DMA_MEMORY_TO_PERIPH;
-//     hdma_tim16_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
-//     hdma_tim16_ch1.Init.MemInc = DMA_MINC_ENABLE;
-//     hdma_tim16_ch1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-//     hdma_tim16_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-//     hdma_tim16_ch1.Init.Mode = DMA_CIRCULAR;
-//     hdma_tim16_ch1.Init.Priority = DMA_PRIORITY_LOW;
-//     if (HAL_DMA_Init(&hdma_tim16_ch1) != HAL_OK)
-//     {
-//       Error_Handler();
-//     }
-
-//     __HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_CC1],hdma_tim16_ch1);
-
-//   /* USER CODE BEGIN TIM16_MspInit 1 */
-
-//   /* USER CODE END TIM16_MspInit 1 */
-//   }
-
-// }
-
-// void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
-// {
-//   GPIO_InitTypeDef GPIO_InitStruct = {0};
-//   if(htim->Instance==TIM16)
-//   {
-//   /* USER CODE BEGIN TIM16_MspPostInit 0 */
-
-//   /* USER CODE END TIM16_MspPostInit 0 */
-
-//     __HAL_RCC_GPIOB_CLK_ENABLE();
-//     /**TIM16 GPIO Configuration
-//     PB8     ------> TIM16_CH1
-//     */
-//     GPIO_InitStruct.Pin = GPIO_PIN_8;
-//     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//     GPIO_InitStruct.Pull = GPIO_NOPULL;
-//     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//     GPIO_InitStruct.Alternate = GPIO_AF14_TIM16;
-//     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-//   /* USER CODE BEGIN TIM16_MspPostInit 1 */
-
-//   /* USER CODE END TIM16_MspPostInit 1 */
-//   }
-
-// }
-
 
 void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef* _TimHandle_base)
 {
@@ -177,18 +116,5 @@ void WS2812B::_init(void) {
   sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
   HAL_TIMEx_ConfigBreakDeadTime(&_TimHandle, &sBreakDeadTimeConfig);
 
-  uint8_t err=HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,	MyTempbufsize);
-  // if(err != HAL_OK)
-  // {
-  //   Serial.println(err);
-  //   error(err);
-  // }
-
-
-  
+  HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,	MyTempbufsize);
 }
-
-// void DMA1_Channel2_IRQHandler(void) {
-// 	HAL_DMA_IRQHandler(_TimHandle.hdma[TIM_DMA_ID_CC1]);
-//   // ws2812_update();
-// }
