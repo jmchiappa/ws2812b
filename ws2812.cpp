@@ -80,7 +80,6 @@ void WS2812B::begin(void)
 
 	memset(Layer,0, sizeof(Layer));
 	memset(Brightness,FULL_BRIGHTNESS_RANGE,sizeof(Brightness));
-	// Serial.println(NbLed);
 }
 
 void WS2812B::Clear(void)
@@ -289,14 +288,11 @@ void WS2812B::Make_Pixel_Composite(int8_t x, int8_t y)
 	setLEDcolor(INDEX_LED(x,y),d.red,d.green,d.blue);
 }
 
-
-
-
-void ws2812_update(void) {
-	//HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
-			MyTempbufsize);
-}
+// void ws2812_update(void) {
+// 	//HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
+// 	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,
+// 			MyTempbufsize);
+// }
 
 #if defined(STM32L476xx)
 # include "l476.init"

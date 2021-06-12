@@ -1,3 +1,30 @@
+GPIO_InitTypeDef GPIO_InitStruct;
+DMA_HandleTypeDef hdma_tim;
+TIM_HandleTypeDef _TimHandle;
+TIM_OC_InitTypeDef _sConfig;
+
+/* Definition of TIM instance */
+#define TIMx                             	TIM16
+
+/* Definition for TIMx clock resources */
+#define TIMx_CLK_ENABLE                  	__HAL_RCC_TIM16_CLK_ENABLE
+#define DMAx_CLK_ENABLE                  	__HAL_RCC_DMA1_CLK_ENABLE
+
+/* Definition for TIMx Pins - refer to p. 93/94 DM00108832 */
+#define TIMx_CHANNEL1_GPIO_CLK_ENABLE    	__HAL_RCC_GPIOA_CLK_ENABLE
+#define TIMx_GPIO_CHANNEL1_PORT          	GPIOA
+#define GPIO_PIN_CHANNEL1                	GPIO_PIN_6
+#define GPIO_AF_TIMx                     	GPIO_AF14_TIM16
+
+/* Definition for TIMx's DMA - refer to p343 RM0351 / DM00083560 */
+#define TIMx_CC1_DMA_REQUEST             	DMA_REQUEST_4
+#define TIMx_CC1_DMA_INST                	DMA1_Channel6
+
+/* Definition for DMAx's NVIC */
+#define TIMx_DMA_IRQn                    	DMA1_Channel6_IRQn
+#define TIMx_DMA_IRQHandler              	DMA1_Channel6_IRQHandler
+
+
 /**
  * @brief TIM MSP Initialization
  *        This function configures the hardware resources used in this example:
@@ -47,8 +74,8 @@ void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
 
 	/*##-2- Configure the NVIC for DMA #########################################*/
 	/* NVIC configuration for DMA transfer complete interrupt */
-	HAL_NVIC_SetPriority(TIMx_DMA_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(TIMx_DMA_IRQn);
+	// HAL_NVIC_SetPriority(TIMx_DMA_IRQn, 0, 0);
+	// HAL_NVIC_EnableIRQ(TIMx_DMA_IRQn);
 }
 
 
@@ -81,6 +108,6 @@ void WS2812B::_init(void) {
 	HAL_TIM_PWM_Start_DMA(&_TimHandle, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,	MyTempbufsize);
 }
 
-void TIMx_DMA_IRQHandler(void) {
-	HAL_DMA_IRQHandler(_TimHandle.hdma[TIM_DMA_ID_CC1]);
-}
+// void TIMx_DMA_IRQHandler(void) {
+// 	HAL_DMA_IRQHandler(_TimHandle.hdma[TIM_DMA_ID_CC1]);
+// }

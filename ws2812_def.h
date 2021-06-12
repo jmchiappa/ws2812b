@@ -7,27 +7,6 @@
 */
 #include "Arduino.h"
 
-/* Definition of TIM instance */
-#define TIMx                             	TIM16
-
-/* Definition for TIMx clock resources */
-#define TIMx_CLK_ENABLE                  	__HAL_RCC_TIM16_CLK_ENABLE
-#define DMAx_CLK_ENABLE                  	__HAL_RCC_DMA1_CLK_ENABLE
-
-/* Definition for TIMx Pins - refer to p. 93/94 DM00108832 */
-#define TIMx_CHANNEL1_GPIO_CLK_ENABLE    	__HAL_RCC_GPIOA_CLK_ENABLE
-#define TIMx_GPIO_CHANNEL1_PORT          	GPIOA
-#define GPIO_PIN_CHANNEL1                	GPIO_PIN_6
-#define GPIO_AF_TIMx                     	GPIO_AF14_TIM16
-
-/* Definition for TIMx's DMA - refer to p343 RM0351 / DM00083560 */
-#define TIMx_CC1_DMA_REQUEST             	DMA_REQUEST_4
-#define TIMx_CC1_DMA_INST                	DMA1_Channel6
-
-/* Definition for DMAx's NVIC */
-#define TIMx_DMA_IRQn                    	DMA1_Channel6_IRQn
-#define TIMx_DMA_IRQHandler              	DMA1_Channel6_IRQHandler
-
 //WS2812
 #define MATRIX_NB_COLUMN				(8)
 #define MATRIX_NB_ROW						(8)
