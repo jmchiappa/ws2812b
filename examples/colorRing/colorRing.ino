@@ -4,7 +4,7 @@ int32_t i;
 int32_t led;
 int32_t colorIndex;
 uint8_t myStripLedArray[BUF_SIZE(8)];
-WS2812B myStripLed(myStripLedArray,sizeof(myStripLedArray),WS_RGB);
+stripLed myStripLed(myStripLedArray,sizeof(myStripLedArray),WS_RGB);
 
 // Décrire cette fonction,
 int32_t Bleu(int index) {

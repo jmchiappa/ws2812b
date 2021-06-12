@@ -53,11 +53,10 @@ class stripLed
 class matrixLed : public stripLed
 {
 	public:
-		//WS2812B(rgb_order_e ws_order=WS_GRB);      // constructor
-		stripLed(rgb_order_e ws_order=WS_GRB);      // constructor
-		stripLed(uint8_t column, uint8_t row, uint8_t *buf , uint32_t size);      // constructor
-		stripLed(uint8_t column, uint8_t row, uint8_t *buf , uint32_t size, rgb_order_e ws_order);      // constructor
+		matrixLed(uint8_t column, uint8_t row, uint8_t *buf , uint32_t size);      // constructor
+		matrixLed(uint8_t column, uint8_t row, uint8_t *buf , uint32_t size, rgb_order_e ws_order);      // constructor
 		void Clear(uint8_t nb_layer);
+		void Clear(void);
 		void Rectangle(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
 		void Fill(uint8_t nb_layer,uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue);
 		void Bitmap(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t *bitmap);

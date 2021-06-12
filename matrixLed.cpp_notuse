@@ -1,0 +1,141 @@
+
+#include "ws2812.h"
+#include "analog.h"
+#include "timer.h"
+/* Variables -----------------------------------------------*/
+
+
+// static uint8_t LEDbuffer[LED_BUFFER_SIZE];
+
+extern static uint8_t *MyTempbuffer;
+extern static uint32_t MyTempbufsize;
+extern static uint16_t NbLed;
+extern static pixel_t Layer[LAYER_MAX][MATRIX_NB_ROW][MATRIX_NB_COLUMN];
+extern static uint8_t Brightness[LAYER_MAX];
+extern static uint32_t last_date_call=0U;
+
+//#define WS_RGB
+//#define WS_BGR
+//#define WS_GRB
+#define INDEX_LED(x,y)		(x+(y*MATRIX_NB_COLUMN))
+#define COLOR(r,g,b)		(r<<16 | g<<8 | b)
+
+#define ALPHA_SOLID			RGB_FULL_RANGE
+#define ALPHA_TRANSPARENT	0
+
+void matrixLed::Clear(uint8_t nb_layer)
+{
+	Fill(nb_layer,ALPHA_TRANSPARENT,0,0,0);
+}
+
+void matrixLed::Rectangle(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue)
+{
+	int8_t i,j;
+	for(j=y;j<(y+height);j++)
+		for(i=x;i<(x+width);i++)
+		{
+			SetPixelAt(nb_layer,i,j,alpha,red,green,blue);
+		}
+}
+
+void matrixLed::Fill(uint8_t nb_layer,uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue)
+{
+	// setWHOLEcolor(red, green, blue);
+	uint8_t x,y;
+	pixel_t p={alpha,red,green,blue};
+	for(x=0; x<MATRIX_NB_COLUMN;x++)
+		for(y=0; y<MATRIX_NB_ROW;y++)
+			memcpy(&Layer[nb_layer][y][x], &p , sizeof(pixel_t));
+
+	Make_Layer_composite();
+
+}
+
+void matrixLed::SetBrightness(uint8_t nb_layer,uint8_t brightness)
+{
+	Brightness[nb_layer]=brightness;
+	Make_Layer_composite();
+}
+
+void matrixLed::Bitmap(uint8_t nb_layer,int8_t x, int8_t y, uint8_t width, uint8_t height, uint8_t *bitmap)
+{
+	int8_t i,j;
+	pixel_t *p = (pixel_t *)bitmap;
+
+	for(j=y;j<(y+height);j++)
+		for(i=x;i<(x+width);i++)
+		{
+			SetPixelAt(nb_layer,i,j,p->alpha, p->red,p->green,p->blue);
+			p++;
+		}
+}
+
+void matrixLed::SetPixelAt(uint8_t nb_layer,int8_t x, int8_t y, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue)
+{
+	if(nb_layer<LAYER_MAX)
+	{
+		if(Check_Zone(x,y))
+		{
+			if(alpha>=RGB_FULL_RANGE) alpha=RGB_FULL_RANGE;
+			if(red  >=RGB_FULL_RANGE) red  =RGB_FULL_RANGE;
+			if(green>=RGB_FULL_RANGE) green=RGB_FULL_RANGE;
+			if(blue >=RGB_FULL_RANGE) blue =RGB_FULL_RANGE;
+
+			// setLEDcolor(INDEX_LED(x,y),red, green,blue);
+			Layer[nb_layer][y][x].alpha = alpha;
+			Layer[nb_layer][y][x].red=red;
+			Layer[nb_layer][y][x].green=green;
+			Layer[nb_layer][y][x].blue=blue;
+			Make_Pixel_Composite(x,y);		
+		}
+	}
+}
+
+void matrixLed::SetPixelAt(uint8_t nb_layer,uint8_t nbled, uint8_t alpha,uint8_t red, uint8_t green, uint8_t blue)
+{
+	setLEDcolor(nbled,red,green,blue);
+}
+
+
+bool matrixLed::Check_Zone(int8_t x,int8_t y)
+{
+	if(x<0) 					return false;
+	if(y<0) 					return false;
+	if(x>(MATRIX_NB_COLUMN-1)) 	return false;
+	if(y>(MATRIX_NB_ROW-1))		return false;
+	return true;
+}
+
+void matrixLed::Make_Layer_composite(void)
+{
+	for(uint8_t x=0; x<MATRIX_NB_COLUMN;x++)
+		for(uint8_t y=0; y<MATRIX_NB_ROW;y++)
+		{
+			Make_Pixel_Composite(x,y);
+		}
+}
+
+void matrixLed::Make_Pixel_Composite(int8_t x, int8_t y)
+{
+	pixel_t *s;
+	pixel_t d = { ALPHA_SOLID,0,0,0};	// destination
+	if(!((x==2)&&(y==6))) // dead pixel
+		for(uint8_t l=LAYER_BACKGROUND;l<LAYER_MAX;l++)
+		{
+			s=&Layer[l][y][x];
+			d.red  = (1-s->alpha/(float)(RGB_FULL_RANGE))*d.red   + (s->alpha/(float)(RGB_FULL_RANGE))*s->red  *Brightness[l]/FULL_BRIGHTNESS_RANGE;
+			d.green= (1-s->alpha/(float)(RGB_FULL_RANGE))*d.green + (s->alpha/(float)(RGB_FULL_RANGE))*s->green*Brightness[l]/FULL_BRIGHTNESS_RANGE;
+			d.blue = (1-s->alpha/(float)(RGB_FULL_RANGE))*d.blue  + (s->alpha/(float)(RGB_FULL_RANGE))*s->blue *Brightness[l]/FULL_BRIGHTNESS_RANGE;
+		}
+	setLEDcolor(INDEX_LED(x,y),d.red,d.green,d.blue);
+}
+
+void matrixLed::fillBackground(uint8_t red, uint8_t green, uint8_t blue)
+{
+	Fill(LAYER_BACKGROUND,ALPHA_SOLID,red,green,blue);
+}
+
+void matrixLed::Clear(void)
+{
+	Fill(LAYER_BACKGROUND,ALPHA_TRANSPARENT,0,0,0);
+}

@@ -79,7 +79,7 @@ void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef *htim) {
 }
 
 
-void WS2812B::_init(void) {
+void stripLed::_init(void) {
 	HardwareTimer *myTim = new HardwareTimer(TIMx);
 
 	_TimHandle.Instance = TIMx;
@@ -101,7 +101,7 @@ void WS2812B::_init(void) {
 	_sConfig.Pulse        = 0;
 	HAL_TIM_PWM_ConfigChannel(&_TimHandle, &_sConfig, TIM_CHANNEL_1);
 
-	// registerCoreCallback(WS2812B::updateCallback);
+	// registerCoreCallback(stripLed::updateCallback);
 
 	/*##-3- Start PWM signal generation in DMA mode ############################*/
 
