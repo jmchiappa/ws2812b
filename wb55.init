@@ -4,7 +4,7 @@ TIM_HandleTypeDef _TimHandle;
 TIM_OC_InitTypeDef _sConfig;
 
 
-
+#ifdef DEBUG
 #define error(a)       {while(1) \
 {\
   for(uint8_t i=0;i<a;i++) {\
@@ -16,6 +16,9 @@ TIM_OC_InitTypeDef _sConfig;
   delay(1000);\
   }\
 }
+#else
+#define error(a)       {while(1) {}}
+#endif
 
 void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef* _TimHandle_base)
 {
