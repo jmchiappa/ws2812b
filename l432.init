@@ -73,14 +73,13 @@ void stripLed::_init(void) {
   _TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   _TimHandle.Init.RepetitionCounter = 0;
   _TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  HAL_TIM_Base_Init(&_TimHandle);
   if (HAL_TIM_Base_Init(&_TimHandle) != HAL_OK)
   {
     error(10);
   }
   if (HAL_TIM_PWM_Init(&_TimHandle) != HAL_OK)
   {
-    error(2)
+    error(2);
   }
   HAL_TIM_WS2812_MspInit(&_TimHandle);
 

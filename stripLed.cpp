@@ -155,6 +155,8 @@ void stripLed::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8
 # include "wb55.init"
 #elif defined(STM32L432xx)
 # include "l432.init"
+#elif defined(STM32G0xx)
+# include "g031.init"
 #else
 # error "from library ws2812 : MCU not supported"
 #endif
