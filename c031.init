@@ -1,0 +1,100 @@
+TIM_HandleTypeDef htim16;
+DMA_HandleTypeDef hdma_tim16_ch1;
+
+#define error(a)       {while(1) \
+{\
+  for(uint8_t i=0;i<a;i++) {\
+    digitalWrite(LED_BUILTIN,HIGH);\
+    delay(15);\
+    digitalWrite(LED_BUILTIN,LOW);\
+    delay(500);\
+  }\
+  delay(1000);\
+  }\
+}
+
+void HAL_TIM_WS2812_MspInit(TIM_HandleTypeDef* htim_base)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_TIM16_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF5_TIM16;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  hdma_tim16_ch1.Instance = DMA1_Channel1;
+  hdma_tim16_ch1.Init.Request = DMA_REQUEST_TIM16_CH1;
+  hdma_tim16_ch1.Init.Direction = DMA_MEMORY_TO_PERIPH;
+  hdma_tim16_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
+  hdma_tim16_ch1.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_tim16_ch1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+  hdma_tim16_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+  hdma_tim16_ch1.Init.Mode = DMA_CIRCULAR;
+  hdma_tim16_ch1.Init.Priority = DMA_PRIORITY_LOW;
+  if (HAL_DMA_Init(&hdma_tim16_ch1) != HAL_OK)
+  {
+    error(3);
+  }
+
+  __HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_CC1],hdma_tim16_ch1);
+}
+
+void stripLed::_init(void) {
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+  HardwareTimer *myTim = new HardwareTimer(TIM16);
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* USER CODE END TIM16_Init 1 */
+    htim16.Instance = TIM16;
+    htim16.Init.Prescaler = (uint32_t)((myTim->getTimerClkFreq() / TIMER_CLOCK_FREQ) - 1);
+    htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim16.Init.Period = TIMER_PERIOD - 1;
+    htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim16.Init.RepetitionCounter = 0;
+    htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+    {
+      error(10);
+    }
+    if (HAL_TIM_PWM_Init(&htim16) != HAL_OK)
+    {
+      error(2);
+    }
+    HAL_TIM_WS2812_MspInit(&htim16);
+
+    sConfigOC.OCMode = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    if (HAL_TIM_PWM_ConfigChannel(&htim16, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+      error(5);
+    }
+    sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+    sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+    sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+    sBreakDeadTimeConfig.DeadTime = 0;
+    sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+    sBreakDeadTimeConfig.BreakFilter = 0;
+    sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim16, &sBreakDeadTimeConfig) != HAL_OK)
+    {
+      error(7);
+    }
+    /* USER CODE BEGIN TIM16_Init 2 */
+  
+    /* USER CODE END TIM16_Init 2 */
+    HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t *) MyTempbuffer,	MyTempbufsize);
+  
+}
