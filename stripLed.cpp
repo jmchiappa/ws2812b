@@ -156,7 +156,11 @@ void stripLed::setLEDcolor(uint32_t LEDnumber, uint8_t RED, uint8_t GREEN, uint8
 #elif defined(STM32L432xx)
 # include "l432.init"
 #elif defined(STM32G0xx)
-# include "g031.init"
+#	if defined(ARDUINO_DISCO_G0316)
+#		include "g031J6.init"
+#	else
+# 	include "g031.init"
+#	endif
 #elif defined(STM32C0xx)
 # include "c031.init"
 #else
